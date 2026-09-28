@@ -1,0 +1,12 @@
+check,observed,target_or_comparator,absolute_error
+sum_p_equals_k,2.0,2.0,0.0
+same_seed_max_abs_diff,0.0,0.0,0.0
+zero_env_M3_vs_M1_max_abs_diff,0.0,0.0,0.0
+zero_pred_M3_vs_M2_max_abs_diff,0.0,0.0,0.0
+both_zero_all_methods_max_abs_diff,0.0,0.0,0.0
+H_5_M3_vs_M1_max_abs_diff,0.011799999999999977,0.0,0.011799999999999977
+H_20_M3_vs_M1_max_abs_diff,0.0037000000000000366,0.0,0.0037000000000000366
+H_100_M3_vs_M1_max_abs_diff,0.0018999999999999573,0.0,0.0018999999999999573
+H_500_M3_vs_M1_max_abs_diff,0.0007000000000000339,0.0,0.0007000000000000339
+analytic_joint_variance,0.226,0.2269251237535743,0.0009251237535742862
+analytic_vs_mc_relative_error_pct,0.4093467936169408,0.0,0.4093467936169408

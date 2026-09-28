@@ -1,0 +1,179 @@
+---
+title: "From imported predictions to advancement reliability: simulated maize"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{From imported predictions to advancement reliability: simulated maize}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4)
+library(BreedReliabR)
+```
+
+## Decision and scope
+
+A hypothetical maize programme must advance three of eight unphenotyped candidates
+for grain yield (t/ha). Every value here is **simulated**. The 12 training environments
+and replicated training phenotypes illustrate a separate training population;
+candidate predictions and their covariance are stipulated inputs, not a model fit
+to those phenotypes. They cannot demonstrate predictive accuracy or calibration.
+The data generation script is supplied in `inst/scripts/maize_demo.R` in the source
+and is installed as `system.file("scripts", "maize_demo.R", package = "BreedReliabR")`.
+
+Water deficit is a dimensionless fraction during flowering, and heat is the number
+of hot days during flowering in this hypothetical scenario. These descriptors and
+linear yield responses are illustrative simplifications, not validated crop models.
+
+## 1. Fit-import boundary
+
+In a real application, fit and validate a prediction model externally, then export
+coefficient means and the **full joint prediction-error covariance**, including
+between-candidate dependence, using the same environmental basis. Do not substitute
+residual variance, omit cross-candidate covariance without justification, or mix
+coefficient orders. No genomic model is fitted by this package.
+
+```{r import}
+data(maize_demo)
+d <- maize_demo
+head(d$training_environments)
+head(d$training_phenotypes)
+d$candidates
+pred <- do.call(br_prediction, d$prediction_inputs)
+pred
+```
+
+Rows of `coef_mean` follow candidate IDs. Covariance rows and columns follow all
+three coefficients of candidate 1, then all coefficients of candidate 2, and so on.
+The basis is intercept, `(water_deficit - 0.35)/0.20`, and `(hot_days - 7)/5`.
+Apply these exact transformations to training and target environments; never
+standardize them separately. The uncertainty distribution is Gaussian and is
+assumed independent of future environment sampling.
+
+## 2. Specify the TPE
+
+```{r tpe}
+d$tpe_states
+tpe <- br_tpe(d$tpe_basis, weights = d$tpe_states$weight,
+              state_id = d$tpe_states$state_id)
+tpe
+```
+
+These fixed weights describe a hypothetical deployment mixture, with 5% mass on
+an extreme hot-dry state. They are assumptions, not estimates of biological truth.
+Future environments are sampled independently with replacement. H is the number
+of such future draws, not the number of training trials or an effective sample
+size for a correlated network. Dependence among locations/years requires a
+different sampling model and is outside this demonstration.
+
+## 3. Diagnose support before interpreting reliability
+
+```{r support}
+support <- br_support(tpe, d$training_basis)
+support
+support$states
+support$ranges
+plot(support)
+```
+
+The extreme state exceeds the training ranges. Distances use training sample
+standard deviations in nonconstant basis columns; the intercept contributes
+nothing. A change in a constant training column instead has infinite distance.
+The dashed line is the largest leave-one-out nearest-neighbour training distance,
+an empirical reference, not a calibrated cutoff. Correlated/redundant descriptors
+can distort Euclidean distances. Being inside each marginal range does not imply
+being inside the joint training support, and proximity does not establish model
+validity. Zero-weight states are still diagnosed but contribute no weighted mass.
+
+## 4. Partition uncertainty with Omega
+
+```{r omega}
+om <- br_omega(pred, tpe, H = c(1, 3, 5, 10, 20))
+om
+head(om$candidate)
+```
+
+Omega is the candidate-specific ratio of finite-environment variance to
+prediction variance. Its numerator includes the prediction-by-environment
+interaction in the core variance decomposition. With fixed inputs it decreases
+as 1/H. It is not a probability or a universal decision threshold. Absolute
+candidate variances do not alone determine ranking reliability, which also
+depends on merit gaps and joint covariance. Zero prediction variance can produce
+infinite Omega; both variance components zero give Omega zero by convention.
+
+## 5. Compare all four uncertainty scenarios
+
+```{r comparison}
+comparison <- br_compare(pred, tpe, H = 5, k = 3, nsim = 2000, seed = 410)
+summary(comparison)
+plot(comparison)
+```
+
+M0 ranks expected merit; M1 varies predictions at the mean TPE basis; M2 varies
+future environments with fixed coefficient means; M3 varies both. They use the
+same inputs and selection size. Seeded calls are reproducible, but reusing a seed
+does not provide a paired estimator for differences among methods. M0 reports
+NA set reliability because it does not estimate uncertainty.
+
+## 6. Inspect advancement probabilities and selected sets
+
+```{r advancement}
+joint <- comparison$analyses$M3
+joint$candidates
+joint$expected_merit_set
+joint$probability_set
+stopifnot(abs(sum(joint$candidates$p_advance) - 3) < 1e-10)
+```
+
+Each draw advances exactly k candidates, so probabilities sum to k, not one.
+Candidate MCSE is a binomial Monte Carlo standard error, not a confidence interval
+for real-world performance. Zero observed MCSE at an estimated probability of zero
+or one is not proof of certainty. Increase nsim and repeat seeds when borderline
+decisions matter. Ties are resolved deterministically by candidate ID.
+
+Set reliability is the **expected retained fraction**: the average advancement
+probability over the specified k-member set. It is not the probability that every
+member is retained. The probability-selected set is chosen using the same draws
+that estimate its reliability, so its reported reliability can be optimistically
+selected at finite nsim. This wrapper does not claim independent evaluation or
+provide a set-level MCSE from marginal candidate MCSEs.
+
+## 7. Interpret reliability versus H
+
+```{r curve}
+curve <- br_curve(pred, tpe, H = c(1, 3, 5, 10, 20), k = 3,
+                  nsim = 2000, seed = 410)
+summary(curve)
+plot(curve)
+plot(curve, type = "omega")
+```
+
+M1 is unchanged by H for a fixed seed. As H increases, environmental sampling
+variance decreases; M3 approaches the prediction-only scenario in the limit,
+but neither estimated nor exact ranking reliability must increase monotonically
+in every configuration. Curves are computed at the requested H values without
+smoothing or choosing a supposedly adequate H. M0 and M1 still appear in the
+returned tables. Results at different H values reuse the seed and are not
+independent; no significance test for differences is supplied.
+
+## 8. TPE sensitivity and research use
+
+```{r sensitivity}
+# A transparent alternative scenario, not an automatic correction of the TPE.
+w <- d$tpe_states$weight
+w[d$tpe_states$state_id == "extreme"] <- 0
+tpe_alternative <- br_tpe(d$tpe_basis, w, d$tpe_states$state_id)
+br_support(tpe_alternative, d$training_basis)
+summary(br_compare(pred, tpe_alternative, H = 5, k = 3,
+                   nsim = 2000, seed = 410))
+```
+
+Removing an unsupported state changes the scientific question; it is justified
+only by deployment evidence, not by a desire to improve apparent reliability.
+For a publication with real data, document data provenance and environmental
+descriptors, validate the upstream predictions out of sample, audit covariance
+ordering and calibration, justify TPE weights, examine alternative plausible
+mixtures, assess Monte Carlo stability, and compare predicted decisions against
+independent outcomes. Passing software checks and this simulated workflow do not
+establish empirical breeding utility or publication readiness of those claims.

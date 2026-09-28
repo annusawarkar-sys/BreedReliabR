@@ -1,0 +1,135 @@
+---
+title: "BreedReliabR: Methodology and empirical validation"
+author: "Ashutosh Sawarkar"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BreedReliabR: Methodology and empirical validation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 6,
+                      fig.height = 4)
+```
+
+This vignette describes an offline, model-agnostic workflow. The included code
+uses the package's simulated maize example; it does not reproduce or refit the
+G2F analyses. The external model fit, coefficient means, and complete
+prediction-error covariance must be supplied by the user's validated workflow.
+
+## Workflow
+
+```text
+external model fitting
+  -> coefficient means + full PEV
+  -> br_prediction()
+  -> br_tpe()
+  -> br_support()
+  -> br_omega()
+  -> br_compare() / br_advance()
+  -> br_curve()
+  -> external validation against independent outcomes
+```
+
+The candidate-major coefficient order is fixed as candidate 1's basis terms,
+then candidate 2's terms, and so on. The prediction covariance must retain
+cross-candidate and cross-coefficient terms. `br_prediction()` checks dimension,
+symmetry, and positive-semidefinite behavior, but it cannot verify the upstream
+model's biological or statistical validity.
+
+## Import the model outputs and specify a TPE
+
+The simulated example has a compact pre-specified prediction object and five
+hypothetical TPE states. For a real analysis, replace these objects with
+coefficients and a full PEV from the external fit, without changing the package
+input order.
+
+```{r objects}
+library(BreedReliabR)
+data(maize_demo)
+prediction <- do.call(br_prediction, maize_demo$prediction_inputs)
+tpe <- br_tpe(maize_demo$tpe_basis,
+              weights = maize_demo$tpe_states$weight,
+              state_id = maize_demo$tpe_states$state_id)
+prediction
+tpe
+```
+
+Weights define an assumed target distribution. Equal weights are useful when
+they match the target question, but they are not automatically production-area
+weights.
+
+## Check environmental support and uncertainty scale
+
+```{r support-omega}
+support <- br_support(tpe, maize_demo$training_basis)
+support$summary
+omega <- br_omega(prediction, tpe, H = c(1, 3, 5, 10, 21))
+omega$summary
+```
+
+Support is geometric: ranges and nearest-neighbour distances can flag
+extrapolative states, but cannot establish biological validity or calibration.
+Omega(H) compares finite-TPE environmental variance with prediction variance.
+It is a relative diagnostic, not a probability or a universal threshold.
+
+## Compare M0--M3 and calculate advancement probabilities
+
+```{r compare}
+comparison <- br_compare(prediction, tpe, H = 5, k = 3,
+                         nsim = 2000, seed = 410)
+comparison$summary
+head(comparison$candidates)
+```
+
+M0 is deterministic point ranking and does not estimate reliability. M1
+propagates prediction uncertainty, M2 propagates finite-TPE uncertainty while
+holding coefficients fixed, and M3 propagates both. The results are conditional
+on the supplied predictive distribution, TPE, H, and fixed-k rule.
+
+For a selected set, reliability is the expected retained fraction
+`k^-1 * sum(p_i^A)`; it is not the probability of exact-set recovery. The
+candidate-level Monte Carlo standard error describes simulation error only.
+The probability-selected set is selected and evaluated using the same draws,
+so its reliability estimate can be optimistic at finite simulation size.
+
+## Interpret the H curve
+
+```{r curve}
+curve <- br_curve(prediction, tpe, H = c(1, 3, 5, 10), k = 3,
+                 nsim = 2000, seed = 410)
+curve$summary
+plot(curve, type = "reliability")
+plot(curve, type = "omega")
+```
+
+H is the number of future independent TPE draws under the reference
+formulation. `br_curve()` computes each requested H separately and does not
+impose monotonicity on estimated reliability.
+
+## External validation and empirical findings
+
+For external validation, freeze the upstream fit, TPE, predictions,
+probabilities, and selected sets before inspecting outcomes. Construct an
+independent phenotype reference, then score candidate-level events with a
+candidate-level prevalence baseline. Keep uncertainty in the external ranking
+separate from Monte Carlo error in predicted probabilities.
+
+The project's prediction-frozen 2024 validation and forward year-held-out 2022
+analysis found poor absolute calibration; M2 had the worst Brier performance;
+M3's Brier loss was slightly below M1's in both settings; and predicted
+selected-set reliability was substantially overoptimistic. All probability
+methods performed worse than prevalence-only forecasts, including after the
+corrected Stage L3a candidate-level denominator audit. Performance alignment
+was stronger descriptively for candidates with historical phenotype records,
+without supporting a causal interpretation. The 2022 analysis uses a later
+authoritative G2F release for a year-held-out analysis; it is not an exact
+reconstruction of the separate official 2022 competition test design.
+
+These empirical results are not a claim of general calibration. Correctly
+propagating the specified uncertainties does not repair an inadequate upstream
+predictive distribution or establish improved genetic gain. Full provenance,
+scripts, and the preserved pre-correction/corrected L3a audit trail are kept in
+the separate reproducibility archive; raw G2F data are not included here.

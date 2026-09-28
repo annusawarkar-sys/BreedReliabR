@@ -1,0 +1,9 @@
+citHeader("To cite BreedReliabR in publications, use:")
+
+bibentry(
+  bibtype = "Manual",
+  title = "BreedReliabR: Decision Reliability for Genotype Advancement under Prediction and Target Environment Uncertainty",
+  author = person("Ashutosh", "Sawarkar"),
+  year = "2026",
+  note = "R package version 0.1.0"
+)

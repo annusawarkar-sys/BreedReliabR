@@ -1,0 +1,31 @@
+Package: BreedReliabR
+Type: Package
+Title: Decision Reliability for Genotype Advancement under Prediction and Target Environment Uncertainty
+Version: 0.1.0
+Authors@R: person("Ashutosh", "Sawarkar", role = c("aut", "cre"), email = "ashutoshs@gm.rkmvu.ac.in")
+Description: A model-agnostic research layer for genotype advancement decisions
+    from externally fitted genomic prediction models. It propagates full joint
+    coefficient prediction-error covariance together with finite sampling from
+    a specified target population of environments to calculate conditional
+    advancement probabilities, expected selected-set reliability, and the
+    relative contributions of prediction and target-environment uncertainty.
+    It also compares uncertainty formulations and reports geometric support
+    diagnostics. Probabilities are conditional on supplied inputs and are not
+    guaranteed to be calibrated in new populations or environments.
+URL: https://github.com/annusawarkar-sys/BreedReliabR
+BugReports: https://github.com/annusawarkar-sys/BreedReliabR/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 3.6.0)
+Imports:
+    stats,
+    graphics
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+LazyData: true
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2
+NeedsCompilation: no
