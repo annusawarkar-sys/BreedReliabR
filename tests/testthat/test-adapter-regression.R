@@ -52,7 +52,10 @@ test_that("frozen synthetic M0-M3 fixture agrees with reference probabilities", 
   ref <- utils::read.csv(testthat::test_path("fixtures", "method-reference.csv"),
                          stringsAsFactors = FALSE)
   for (method in c("M0", "M1", "M2", "M3")) {
-    a <- br_advance(f$pred, f$tpe, H = 5, k = 2, nsim = 2500,
+    # These are Monte Carlo estimates. Use enough draws that random-number
+    # stream and eigensolver differences across OS/BLAS remain small compared
+    # with the fixed regression tolerance.
+    a <- br_advance(f$pred, f$tpe, H = 5, k = 2, nsim = 50000,
                     method = method, seed = 321)
     observed <- a$candidates$p_advance[match(ref$candidate[ref$method == method],
                                               a$candidates$candidate)]
