@@ -1,3 +1,10 @@
+# BreedReliabR 0.1.1
+
+* Add Santosh Patil as a package author for substantial R programming and coding
+  contribution. Ashutosh Sawarkar remains the sole maintainer.
+* Update the maintainer email and add author contact and ORCID metadata.
+* Metadata-only release; no statistical, API, or package behaviour changes.
+
 # BreedReliabR 0.1.0
 
 ## First research release

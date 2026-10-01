@@ -1,8 +1,15 @@
 Package: BreedReliabR
 Type: Package
 Title: Decision Reliability for Genotype Advancement under Prediction and Target Environment Uncertainty
-Version: 0.1.0
-Authors@R: person("Ashutosh", "Sawarkar", role = c("aut", "cre"), email = "ashutoshs@gm.rkmvu.ac.in")
+Version: 0.1.1
+Authors@R: c(
+    person("Ashutosh", "Sawarkar", role = c("aut", "cre"),
+        email = "annu.sawarkar@gmail.com",
+        comment = c(ORCID = "0000-0002-1016-8822")),
+    person("Santosh", "Patil", role = "aut",
+        email = "patil.sgstat@icar.org.in",
+        comment = c(ORCID = "0000-0002-5370-3522"))
+    )
 Description: A model-agnostic research layer for genotype advancement decisions
     from externally fitted genomic prediction models. It propagates full joint
     coefficient prediction-error covariance together with finite sampling from
