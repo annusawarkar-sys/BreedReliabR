@@ -1,4 +1,4 @@
-# BreedReliabR 0.1.2 development candidate
+# BreedReliabR 0.1.2
 
 BreedReliabR is a model-agnostic decision-reliability layer for **fixed-k genotype advancement**. It starts after an external genomic or genotype-by-environment prediction model has produced candidate environmental-response coefficient means and their **full joint prediction-error covariance**.
 
@@ -159,7 +159,7 @@ install.packages("BreedReliabR")
 library(BreedReliabR)
 ```
 
-This source tree is the 0.1.2 development candidate.
+This repository contains the validated 0.1.2 source release. The CRAN version may remain 0.1.1 until the CRAN update is accepted.
 
 ## Included simulated maize example
 
@@ -201,7 +201,7 @@ These findings are an important claim boundary: correct uncertainty propagation 
 
 ## Reproducibility and citation
 
-Before release, run the complete package test suite, render all vignettes, and run `R CMD check --as-cran` on the source package. The compact simulated data and tests are offline. External G2F raw data are not bundled.
+The 0.1.2 release was validated with the complete package test suite, all five vignettes, and `R CMD check --as-cran` on Windows, macOS, and Ubuntu with `Status: OK`. The compact simulated data and tests are offline. External G2F raw data are not bundled.
 
 To cite the software, use:
 

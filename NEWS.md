@@ -1,4 +1,4 @@
-# BreedReliabR 0.1.2 (development candidate)
+# BreedReliabR 0.1.2 (2026-10-31)
 
 ## Operational-usability release
 

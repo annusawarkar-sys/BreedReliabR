@@ -7,6 +7,6 @@ These small files illustrate the hand-off from an upstream prediction model to B
 - `target_environments.csv` contains TPE states in the same environmental basis plus weights.
 - `training_environments.csv` contains the training environmental basis used by `br_support()`.
 
-The source tree retains `candidate_joint_PEV.csv` and `generate_candidate_joint_PEV.R` as an auditable source representation. Before a 0.1.2 release is built, run `tools/u9-native-preflight.R` under native R to generate and verify `candidate_joint_PEV.rds`. The release gate must stop if that RDS is absent or invalid.
+The release includes the canonical `candidate_joint_PEV.rds`. The source tree also retains `candidate_joint_PEV.csv` and `generate_candidate_joint_PEV.R` as an auditable source representation. `tools/u9-native-preflight.R` regenerates and verifies the RDS during release validation.
 
 Do not manually reconstruct the full covariance from marginal standard errors or replace it with a diagonal matrix unless that diagonal matrix is genuinely the validated covariance supplied by the upstream model.
