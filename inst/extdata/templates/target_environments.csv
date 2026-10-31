@@ -1,0 +1,4 @@
+state,intercept,stress,weight
+TPE1,1,-1,0.20
+TPE2,1,0,0.30
+TPE3,1,1,0.50

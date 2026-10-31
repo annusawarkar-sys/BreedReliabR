@@ -1,0 +1,7 @@
+coefficient,G01__intercept,G01__stress,G02__intercept,G02__stress,G03__intercept,G03__stress
+G01__intercept,0.20,0.01,0.01,0.01,0.01,0.01
+G01__stress,0.01,0.20,0.01,0.01,0.01,0.01
+G02__intercept,0.01,0.01,0.20,0.01,0.01,0.01
+G02__stress,0.01,0.01,0.01,0.20,0.01,0.01
+G03__intercept,0.01,0.01,0.01,0.01,0.20,0.01
+G03__stress,0.01,0.01,0.01,0.01,0.01,0.20

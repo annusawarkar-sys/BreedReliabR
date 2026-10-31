@@ -1,4 +1,31 @@
-# BreedReliabR 0.1.1
+# BreedReliabR 0.1.2 (development candidate)
+
+## Operational-usability release
+
+* Add `br_check_inputs()` as a non-destructive preflight audit for candidate
+  coefficient means, full joint covariance, environmental-basis compatibility,
+  optional TPE/training bases, and fixed-k decision settings. The helper reports
+  structural problems but never repairs covariance matrices or scientific inputs.
+* Add breeder-facing guidance that separates raw breeding data, upstream genomic
+  or GxE model fitting, and the BreedReliabR decision-reliability layer.
+* Add a beginner vignette showing how ordinary multi-environment data become
+  candidate coefficient means and a full joint covariance in a transparent
+  reaction-norm example.
+* Add a genomic GxE vignette with phenotyped training genotypes and separate
+  unphenotyped candidates, deriving candidate environmental-response coefficients
+  and their full joint PEV before the BreedReliabR hand-off.
+* Add a model-integration guide covering GBLUP, RR-BLUP, random regression,
+  Bayesian workflows, factor-analytic GxE, discrete environment-state predictions,
+  and machine-learning uncertainty while distinguishing validated, high-feasibility,
+  conceptual, and insufficient hand-off routes.
+* Clarify candidate-major covariance labels, expected retained fraction, Omega as
+  relative environmental-to-prediction uncertainty, and the geometric-only scope
+  of `br_support()`.
+* Preserve the seven-function statistical research core unchanged. Version 0.1.2
+  adds usability, documentation, and preflight diagnostics rather than a new
+  uncertainty method or calibration claim.
+
+# BreedReliabR 0.1.1 (2026-10-16)
 
 * Add Santosh Patil as a package author for substantial R programming and coding
   contribution. Ashutosh Sawarkar remains the sole maintainer.

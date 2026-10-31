@@ -1,0 +1,4 @@
+candidate,intercept,stress
+G01,5.10,-0.20
+G02,5.00,-0.10
+G03,5.30,-0.30
