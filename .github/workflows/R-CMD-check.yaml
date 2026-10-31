@@ -32,10 +32,29 @@ jobs:
         env:
           TINYTEX_INSTALLER: TinyTeX
 
+      - name: Install HTML Tidy on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tidy
+
+      - name: Install HTML Tidy on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: brew install tidy-html5
+
+      - name: Install HTML Tidy on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install html-tidy -y --no-progress
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::V8
 
       - name: Generate and verify operational template RDS
         shell: Rscript {0}
